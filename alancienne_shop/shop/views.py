@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Category, Product
-# from cart.forms import CartAddProductForm
+from cart.forms import CartAddProductForm
 from .price_stock import price_ttc
 
 
@@ -8,7 +8,8 @@ def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
     products = Product.objects.filter(available=True)
-    product = Product.objects.get(available=True)
+    #product = Product.objects.get(available=True)
+    products.price += products.tva/100
     calculate_price_ttc = price_ttc(product.price, product.tva)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
@@ -20,12 +21,11 @@ def product_list(request, category_slug=None):
 
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
-    # cart_product_form = CartAddProductForm()
-    # Adding for stock and price
-    # product.price += product.tva/100
+    cart_product_form = CartAddProductForm()
+    product.price += product.tva/100
     calculate_price_ttc = price_ttc(product.price, product.tva)
     return render(request,
                   'shop/product/detail.html',
                   {'product': product,
-                   # 'cart_product_form': cart_product_form
+                   'cart_product_form': cart_product_form
                    })
