@@ -8,12 +8,14 @@ def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
     products = Product.objects.filter(available=True)
-    #product = Product.objects.get(available=True)
-    products.price += products.tva/100
-    calculate_price_ttc = price_ttc(product.price, product.tva)
+    for product in products:
+        product.price += product.tva/100
+        calculate_price_ttc = price_ttc(product.price, product.tva)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
+        for product in products:
+            product.price += product.tva/100
     return render(request, 'shop/product/list.html', {'category': category,
                                                       'categories': categories,
                                                       'products': products})
